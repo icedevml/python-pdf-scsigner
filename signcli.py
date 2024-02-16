@@ -2,6 +2,7 @@ import argparse
 import getpass
 import io
 import os
+import sys
 
 from pkcs11 import PKCS11Error
 
@@ -17,6 +18,7 @@ try:
     check_token_present()
 except PKCS11Error as e:
     print('PKCS11Error: ' + str(e))
+    sys.exit(1)
 
 with open(args.input_file, 'rb') as f:
     input_data = io.BytesIO(f.read())
