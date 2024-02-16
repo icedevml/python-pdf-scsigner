@@ -21,6 +21,10 @@ with up to few minor modifications.
 
 Run: `python3 signcli.py <input_file>`
 
+This should produce a signature that is accepted by the 3rd party qualified signature validation software.
+
 ## Validating
 
 Run: `python3 validatecli.py <input_file>`
+
+Note that this validation script would barely validate any documents that were not signed using this tool.

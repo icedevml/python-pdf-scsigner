@@ -4,6 +4,7 @@ import io
 from pdftitle import get_title_from_io
 from pyhanko.keys import load_certs_from_pemder
 from pyhanko.pdf_utils.reader import PdfFileReader
+from pyhanko.sign.general import ValueErrorWithMessage
 from pyhanko.sign.validation import validate_pdf_ltv_signature, RevocationInfoValidationType
 
 parser = argparse.ArgumentParser()
@@ -23,14 +24,17 @@ with open(args.input_file, 'rb') as f:
 
     for sig in r.embedded_signatures:
         cert_subj = sig.signer_cert[0]["subject"]
+        signer_text = cert_subj.native.get('serial_number', '<None>') + ' ' + cert_subj.native.get('common_name', '<None>')
 
-        sig_status = validate_pdf_ltv_signature(
-            sig,
-            validation_type=RevocationInfoValidationType.ADOBE_STYLE,
-            validation_context_kwargs={'trust_roots': root_certs}
-        )
-
-        signer_text = cert_subj.native['serial_number'] + ' ' + cert_subj.native['common_name']
+        try:
+            sig_status = validate_pdf_ltv_signature(
+                sig,
+                validation_type=RevocationInfoValidationType.ADOBE_STYLE,
+                validation_context_kwargs={'trust_roots': root_certs}
+            )
+        except ValueErrorWithMessage as e:
+            print('FAIL ' + signer_text + ' ' + str(e))
+            continue
 
         if not sig_status.bottom_line:
             raise RuntimeError('Failed to validate signature for: ' + signer_text)
