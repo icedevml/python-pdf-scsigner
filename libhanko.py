@@ -6,10 +6,11 @@ from pkcs11 import ObjectClass, Attribute
 from pyhanko.sign import signers
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.sign.pkcs11 import PKCS11Signer, open_pkcs11_session
+from pyhanko.sign.timestamps import HTTPTimeStamper
 from pyhanko_certvalidator import ValidationContext
 from pyhanko_certvalidator.fetchers.requests_fetchers import RequestsFetcherBackend
 
-from config import PKCS11_LIB, PKCS11_TOKEN_LABEL
+from config import PKCS11_LIB, PKCS11_TOKEN_LABEL, TSA_SERVER
 
 
 def _open_session(user_pin=None):
@@ -41,6 +42,11 @@ def sign_pdf(input_data: BytesIO, user_pin: str):
         allow_fetching=True
     )
 
+    tst_client = None
+
+    if TSA_SERVER:
+        tst_client = HTTPTimeStamper(TSA_SERVER)
+
     random_val = ''.join(random.choice(string.digits) for _ in range(12))
     out = signers.sign_pdf(
         IncrementalPdfFileWriter(input_data),
@@ -48,7 +54,8 @@ def sign_pdf(input_data: BytesIO, user_pin: str):
             field_name='Signature' + random_val,
             validation_context=validation_context,
             embed_validation_info=True),
-        signer=cms_signer
+        signer=cms_signer,
+        timestamper=tst_client
     )
 
     return out.read()

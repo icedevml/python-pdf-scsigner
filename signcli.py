@@ -32,5 +32,7 @@ else:
     file_dir = os.path.dirname(args.input_file)
     output_file = os.path.join(file_dir, 'signed-' + file_name)
 
+output_file = os.path.abspath(output_file)
+print(f'Writing to: {output_file}')
 with open(output_file, 'wb') as f:
     f.write(output_data)
