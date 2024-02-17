@@ -12,5 +12,3 @@ for slot in slots:
         print(slot, token)
     except PKCS11Error as e:
         print(slot, 'PKCS11Error: ' + repr(e))
-
-
