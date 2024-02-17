@@ -17,7 +17,7 @@ args = parser.parse_args()
 try:
     check_token_present()
 except PKCS11Error as e:
-    print('PKCS11Error: ' + str(e))
+    print('Missing token. PKCS11Error: ' + str(e))
     sys.exit(1)
 
 with open(args.input_file, 'rb') as f:

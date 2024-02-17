@@ -1,3 +1,5 @@
-/.idea/
+/_.idea/
 /venv/
 /config.py
+__pycache__
+/trust_roots.pem
