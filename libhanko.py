@@ -4,6 +4,7 @@ from io import BytesIO
 
 from pkcs11 import ObjectClass, Attribute
 from pyhanko.sign import signers
+from pyhanko.keys import load_certs_from_pemder
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.sign.pkcs11 import PKCS11Signer, open_pkcs11_session
 from pyhanko.sign.timestamps import HTTPTimeStamper
@@ -32,6 +33,7 @@ def sign_pdf(input_data: BytesIO, user_pin: str):
     objs = list(pkcs11_session.get_objects({Attribute.CLASS: ObjectClass.CERTIFICATE}))
     obj_id = objs[0][Attribute.ID]
 
+    root_certs = list(load_certs_from_pemder(['trust_roots.pem']))
     cms_signer = PKCS11Signer(
         pkcs11_session=pkcs11_session,
         cert_id=obj_id,
@@ -39,7 +41,8 @@ def sign_pdf(input_data: BytesIO, user_pin: str):
 
     validation_context = ValidationContext(
         fetcher_backend=RequestsFetcherBackend(),
-        allow_fetching=True
+        allow_fetching=True,
+        trust_roots=root_certs,
     )
 
     tst_client = None
