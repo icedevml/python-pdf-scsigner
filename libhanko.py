@@ -1,6 +1,7 @@
 import random
 import string
 from io import BytesIO
+from pathlib import Path
 
 from pkcs11 import ObjectClass, Attribute
 from pyhanko.sign import signers
@@ -33,7 +34,8 @@ def sign_pdf(input_data: BytesIO, user_pin: str):
     objs = list(pkcs11_session.get_objects({Attribute.CLASS: ObjectClass.CERTIFICATE}))
     obj_id = objs[0][Attribute.ID]
 
-    root_certs = list(load_certs_from_pemder(['trust_roots.pem']))
+    trust_roots = Path(__file__).parent / 'trust_roots.pem'
+    root_certs = list(load_certs_from_pemder([trust_roots]))
     cms_signer = PKCS11Signer(
         pkcs11_session=pkcs11_session,
         cert_id=obj_id,

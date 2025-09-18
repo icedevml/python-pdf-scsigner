@@ -1,5 +1,6 @@
 import argparse
 import io
+from pathlib import Path
 
 from pdftitle import get_title_from_io
 from pyhanko.keys import load_certs_from_pemder
@@ -12,7 +13,8 @@ parser.add_argument("input_file", help="Input PDF file to be validated.", type=s
 
 args = parser.parse_args()
 
-root_certs = list(load_certs_from_pemder(['trust_roots.pem']))
+trust_roots = Path(__file__).parent / 'trust_roots.pem'
+root_certs = list(load_certs_from_pemder([trust_roots]))
 
 
 with open(args.input_file, 'rb') as f:
